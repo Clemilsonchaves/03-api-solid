@@ -7,7 +7,7 @@ const start = async () => {
       port: 3333,
     })
     
-    console.log('🚀 HTTP Server Running on http://localhost:3333')
+    console.log('🚀 HTTP Server Running')
   } catch (err) {
     app.log.error(err)
     process.exit(1)

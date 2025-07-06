@@ -1,0 +1,12 @@
+{
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:prettier/recommended"
+    ],
+
+    "rules": {
+        "camelcase": "off",
+        "no-useless-constructor": "off"
+    }
+}
