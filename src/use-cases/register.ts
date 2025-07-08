@@ -13,6 +13,17 @@ interface RegisterUserCaseResponse {
     user: User
 }
 
+const usersRepository = {
+  create: async (data: { name: string; email: string; password_hash: string }) => ({
+    id: 'user-1',
+    name: data.name,
+    email: data.email,
+    password_hash: data.password_hash, // Use the actual hashed password passed in
+    created_at: new Date(),
+    updated_at: new Date(),
+  }),
+  findByEmail: async () => null,
+};
 
 export class RegisterUseCase {
 

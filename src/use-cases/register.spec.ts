@@ -1,19 +1,32 @@
-import {  describe, it } from 'vitest';
+import { describe, it, expect } from 'vitest';
+import { compare } from 'bcryptjs';
 import { RegisterUseCase } from './register';
-import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository';
 
 describe('Register Use Case', () => {
   it('should hash user password a user upon registration', async () => {
-    // Arrange
-    const prismaUsersRepository = new PrismaUsersRepository();
-    const registerUseCase = new RegisterUseCase(prismaUsersRepository);
+    // Mock repository that uses the actual password_hash passed to it
+    const usersRepository = {
+      create: async (data: { name: string; email: string; password_hash: string }) => ({
+        id: 'user-1',
+        name: data.name,
+        email: data.email,
+        password_hash: data.password_hash, // This is the key fix
+        created_at: new Date(),
+        updated_at: new Date(),
+      }),
+      findByEmail: async () => null,
+    };
 
-  const { user } =  await registerUseCase.execute({
+    const registerUseCase = new RegisterUseCase(usersRepository);
+
+    const { user } = await registerUseCase.execute({
       name: 'John Doe',
-      email: 'johm@gmail.com',
+      email: 'johnn@gmail.com',
       password: '123456'
     });
 
-    console.log(user.password_hash);
+    // Test that the password was actually hashed
+    const isPasswordHashed = await compare('123456', user.password_hash);
+    expect(isPasswordHashed).toBe(true);
   });
 });
