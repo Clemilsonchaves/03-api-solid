@@ -1,32 +1,76 @@
-import { describe, it, expect } from 'vitest';
-import { compare } from 'bcryptjs';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { hash, compare } from 'bcryptjs';
 import { RegisterUseCase } from './register';
+import { AuthenticateUseCase } from './authenticate';
+import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository';
 
-describe('Register Use Case', () => {
-  it('should hash user password a user upon registration', async () => {
-    // Mock repository that uses the actual password_hash passed to it
-    const usersRepository = {
-      create: async (data: { name: string; email: string; password_hash: string }) => ({
-        id: 'user-1',
-        name: data.name,
-        email: data.email,
-        password_hash: data.password_hash, // This is the key fix
-        created_at: new Date(),
-        updated_at: new Date(),
-      }),
-      findByEmail: async () => null,
-    };
+let usersRepository: InMemoryUsersRepository;
+let registerSut: RegisterUseCase;
+let authenticateSut: AuthenticateUseCase;
 
-    const registerUseCase = new RegisterUseCase(usersRepository);
+describe('Register and Authenticate Use Cases', () => {
+  beforeEach(() => { 
+    usersRepository = new InMemoryUsersRepository();
+    registerSut = new RegisterUseCase(usersRepository);
+    authenticateSut = new AuthenticateUseCase(usersRepository);
+  });
 
-    const { user } = await registerUseCase.execute({
-      name: 'John Doe',
-      email: 'johnn@gmail.com',
-      password: '123456'
+  describe('Register Use Case', () => {
+    it('should hash user password a user upon registration', async () => {
+      const { user } = await registerSut.execute({
+        name: 'John Doe',
+        email: 'johndoe@example.com',
+        password: '123456'
+      });
+  
+      // Test that the password was actually hashed
+      const isPasswordHashed = await compare('123456', user.password_hash);
+      expect(isPasswordHashed).toBe(true);
     });
+  });
 
-    // Test that the password was actually hashed
-    const isPasswordHashed = await compare('123456', user.password_hash);
-    expect(isPasswordHashed).toBe(true);
+  describe('Authenticate Use Case', () => {
+    it('should be able to authenticate', async () => {
+      // Primeiro, criar um usuário no repositório
+      const email = 'johnn@gmail.com';
+      const password = '123456';
+      const hashedPassword = await hash(password, 6);
+  
+      await usersRepository.create({
+          name: 'John Doe',
+          email,
+          password_hash: hashedPassword
+      });
+  
+      // Agora tentar autenticar
+      const { user } = await authenticateSut.execute({
+          email,
+          password
+      });
+  
+      // Verificar se o usuário foi autenticado corretamente
+      expect(user.id).toEqual(expect.any(String));
+      expect(user.email).toBe(email);
+    });
+  
+    it('should not authenticate with wrong password', async () => {
+      const email = 'johnn@gmail.com';
+      const password = '123456';
+      const hashedPassword = await hash(password, 6);
+  
+      await usersRepository.create({
+          name: 'John Doe',
+          email,
+          password_hash: hashedPassword
+      });
+  
+      // Tentar autenticar com senha errada
+      await expect(
+          authenticateSut.execute({
+              email,
+              password: 'wrong-password'
+          })
+      ).rejects.toBeInstanceOf(Error);
+    });
   });
 });
