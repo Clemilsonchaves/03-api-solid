@@ -14,12 +14,38 @@ datasource db {
 }
 
 model User {
-  id           String @id @default(cuid())
-  name         String
-  email        String @unique
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
   password_hash String
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  CheckIn       CheckIn[]
 
   @@map("users")
+}
+
+model CheckIn {
+  id           String    @id @default(cuid())
+  user_id      String
+  gym_id       String
+  created_at   DateTime  @default(now())
+  validated_at DateTime?
+
+  user User @relation(fields: [user_id], references: [id])
+  gym  Gym  @relation(fields: [gym_id], references: [id], name: "GymCheckIns")
+
+  @@map("check_ins")
+}
+
+model Gym {
+  id         String   @id @default(cuid())
+  name       String
+  location   String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  checkIns CheckIn[] @relation("GymCheckIns")
+
+  @@map("gyms")
 }
