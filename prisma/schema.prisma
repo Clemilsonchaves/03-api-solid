@@ -39,11 +39,16 @@ model CheckIn {
 }
 
 model Gym {
-  id         String   @id @default(cuid())
-  name       String
+  id          String  @id @default(cuid())
+  title       String
+  description String?
+  name        String
+
   location   String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  latitude   Decimal
+  longitude  Decimal
 
   checkIns CheckIn[] @relation("GymCheckIns")
 

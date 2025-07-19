@@ -6,19 +6,19 @@ import { InvalidCredentialsError } from './authenticate';
 let sut: AuthenticateUseCase;
 
 describe('InvalidCredentialsError', () => {
-  it('should be instance of Error', () => {
+  it('should be instance of Error', async () => {
     const error = new InvalidCredentialsError();
-    expect(error).toBeInstanceOf(Error);
+   await expect(error).toBeInstanceOf(Error);
   });
 
-  it('should have correct message', () => {
+  it('should have correct message', async () => {
     const error = new InvalidCredentialsError();
-    expect(error.message).toBe('Invalid credentials.');
+   await expect(error.message).toBe('Invalid credentials.');
   });
 
-  it('should have name set to "Error"', () => {
+  it('should have name set to "Error"', async () => {
     const error = new InvalidCredentialsError();
-    expect(error.name).toBe('Error');
+   await  expect(error.name).toBe('Error');
   });
 });
 
