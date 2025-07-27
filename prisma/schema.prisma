@@ -42,6 +42,7 @@ model Gym {
   id          String  @id @default(cuid())
   title       String
   description String?
+  phone       String?
   name        String
 
   location   String

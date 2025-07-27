@@ -9,7 +9,7 @@ let gymsRepository: InMemoryGymsRepository;
 let sut: CheckInUseCase;
 
 describe('Check-In Use Case', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
         checkInsRepository = new InMemoryCheckInsRepository();
         gymsRepository = new InMemoryGymsRepository();
         sut = new CheckInUseCase(checkInsRepository, gymsRepository);
@@ -24,7 +24,18 @@ describe('Check-In Use Case', () => {
             name: "",
             location: "",
             created_at: new Date(),
-            updated_at: new Date()
+            updated_at: new Date(),
+            phone: null
+        });
+
+        await gymsRepository.create({
+            title: 'Gym 01',
+            description: 'Description of Gym 01',
+            phone: null,
+            latitude: 0,
+            longitude: 0,
+            name: "",
+            location: ""
         });
     });
 
